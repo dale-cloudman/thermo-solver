@@ -1,2 +1,2 @@
 # thermo-solver
-simple numerical thermodynamics solver
+simple numerical thermodynamics solver .
