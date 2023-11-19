@@ -39,14 +39,14 @@ class MoonModel:
         }
 
         self.vars_logs = {
-            'insolation_W': np.zeros(Constants.moon_day__s),
-            # 'earthshine_W': [],
+            'radiative_input_W': np.zeros(Constants.moon_day__s),
             'soil_radiation_W': np.zeros(Constants.moon_day__s),
+            'avg_soil_temp__K': np.zeros(Constants.moon_day__s),
         }
         self.vars_logs_day_means = {
-            'insolation_W': [],
-            # 'earthshine_W': [],
+            'radiative_input_W': [],
             'soil_radiation_W': [],
+            'avg_soil_temp__K': [],
         }
 
         # state
@@ -107,7 +107,7 @@ class MoonModel:
         earthshine__W = Constants.earthshine__W_m2 * (self.soil_layer_width__m * self.soil_layer_length__m)
         earthshine_input__J = earthshine__W * dt
 
-        self.vars_logs['insolation_W'][self.steps_day] = solar_input__W + earthshine__W
+        self.vars_logs['radiative_input_W'][self.steps_day] = solar_input__W + earthshine__W
 
         # soil radiates according to its temperature across its top surface area
         soil_radiation__J = self.soil_radiation__W * dt
@@ -133,6 +133,8 @@ class MoonModel:
         # update the soil values
         for layer_i in range(len(self.soil_layers_energy__J)):
             self.soil_layers_energy__J[layer_i] += soil_layers__dJ[layer_i]
+
+        self.vars_logs['avg_soil_temp__K'][self.steps_day] = self.soil_temp__K(layer=0)
 
         # add to total time elapsed
         pre_days = int(self.elapsed__moon_days)
@@ -164,16 +166,18 @@ class CmdLine:
                 soil_temps.append(mm.soil_temp__K(0))
 
             if mm.steps % 10000 == 0:
-                print("{:.2f}d, soil temps: [{}]K, avg insolation: {}, {:.2f}W, avg radiated out: {}, {:.2f} W".format(
+                print("{:.2f}d, dIns {:.0f}W, dROut {:.0f}W, soil T: [{}]K, daily avg tmps: {}K {}, avg insolation: {}, avg radiated out: {}".format(
                     mm.elapsed__moon_days,
+                    mm.vars_logs['radiative_input_W'][mm.steps_day - 1],
+                    mm.vars_logs['soil_radiation_W'][mm.steps_day - 1],
                     " ".join("%.0f" % mm.soil_temp__K(i) for i in range(len(mm.soil_layers_energy__J))),
-                    mm.vars_logs_day_means['insolation_W'],
-                    np.mean(mm.vars_logs['insolation_W'][:mm.steps_day]),
+                    "%.0f" % np.mean(mm.vars_logs['avg_soil_temp__K'][:mm.steps_day]),
+                    mm.vars_logs_day_means['avg_soil_temp__K'],
+                    mm.vars_logs_day_means['radiative_input_W'],
                     mm.vars_logs_day_means['soil_radiation_W'],
-                    np.mean(mm.vars_logs['soil_radiation_W'][:mm.steps_day]),
                 ))
 
-            if pre_day != post_day:
+            if pre_day != post_day and post_day % 3 == 0:
                 # plot soil temps
                 import matplotlib.pyplot as plt
                 plt.plot(soil_temps)
@@ -185,10 +189,6 @@ class CmdLine:
                 plt.yticks(np.arange(0, 400, 20))
 
                 plt.show()
-
-                # clear graph
-                soil_temps = []
-
 
 
 if __name__ == '__main__':
