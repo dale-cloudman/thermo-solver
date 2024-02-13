@@ -77,12 +77,12 @@ class OnePlateWithConduction:
 
 env = OnePlateWithConduction()
 
-# thin copper
-env.L_plate = 0.01
-env.k_plate = 400
+# # thin copper
+# env.L_plate = 0.01
+# env.k_plate = 400
 
-# # thick marble
-# env.L_plate = 1.65
-# env.k_plate = 2.5
+# thick marble
+env.L_plate = 1.65
+env.k_plate = 2.5
 
 env.solve()
