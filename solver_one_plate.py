@@ -81,8 +81,12 @@ env = OnePlateWithConduction()
 # env.L_plate = 0.01
 # env.k_plate = 400
 
-# thick marble
-env.L_plate = 1.65
-env.k_plate = 2.5
+# # thick marble
+# env.L_plate = 1.65
+# env.k_plate = 2.5
+
+# almost no conduction
+env.L_plate = 1
+env.k_plate = 0.00001
 
 env.solve()
