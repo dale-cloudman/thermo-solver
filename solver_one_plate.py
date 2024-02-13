@@ -6,14 +6,13 @@ class OnePlateWithConduction:
     # constants
     s_boltzmann = 5.67e-8
     A_plate = 1
-    L_plate = 0.01
     T_sun = 5700
     T_space = 3
-    # view factor, scale to receive 1360 W/m^2
-    F_left_sun = 1360 / (s_boltzmann * (T_sun ** 4))
+    # view factor, scale to receive 100 W/m^2
+    F_left_sun = 100 / (s_boltzmann * (T_sun ** 4))
     F_right_space = 1
-    # conductivity of plate
-    k_plate = 400  # copper
+    L_plate = 0.01  # thickness of plate
+    k_plate = 400  # conductivity of plate
 
     # equations
     def rate_solar_input_left(self, store):
@@ -78,7 +77,12 @@ class OnePlateWithConduction:
 
 env = OnePlateWithConduction()
 
-env.L_plate = 1
-env.k_plate = 0.035
+# thin copper
+env.L_plate = 0.01
+env.k_plate = 400
+
+# # thick marble
+# env.L_plate = 1.65
+# env.k_plate = 2.5
 
 env.solve()
